@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moving Image on Map</title>
+    <style>
+        #map-container {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            background-image: url('/static/map.jpg');
+            background-size: cover;
+            border: 1px solid black;
+        }
+        #icon {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            transition: top 0.5s, left 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <h2>Live Object Tracking with Map and Car</h2>
+    <div id="map-container">
+        <img src="/static/icon.png" id="icon" style="top:0;left:0;">
+    </div>
+
+    <script>
+        function updatePosition() {
+            fetch('/api/position')
+                .then(res => res.json())
+                .then(data => {
+                    const icon = document.getElementById("icon");
+                    icon.style.left = data.x + 'px';
+                    icon.style.top = data.y + 'px';
+                });
+        }
+
+        updatePosition();
+        setInterval(updatePosition, 2000); // Move every 2 seconds
+    </script>
+</body>
+</html>
