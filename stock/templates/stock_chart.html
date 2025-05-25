@@ -1,0 +1,61 @@
+<!-- templates/stock_chart.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>Stock Prices</h2>
+    <canvas id="stockChart" width="800" height="400"></canvas>
+
+    <script>
+    const ctx = document.getElementById('stockChart').getContext('2d');
+    let chart;
+
+    function fetchStockData() {
+        fetch('/api/stocks')
+            .then(res => res.json())
+            .then(data => {
+                const labels = data.map(d => d.date);
+                const prices = data.map(d => d.price);
+
+                if (chart) {
+                    chart.data.labels = labels;
+                    chart.data.datasets[0].data = prices;
+                    chart.update();
+                } else {
+                    chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Stock Price',
+                                data: prices,
+                                borderColor: 'blue',
+                                backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    title: { display: true, text: 'Date' }
+                                },
+                                y: {
+                                    title: { display: true, text: 'Price' }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+    }
+
+    fetchStockData();
+    setInterval(fetchStockData, 5000); // Refresh every 5 seconds
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manual Bar Chart</title>
+</head>
+<body>
+    <h2>Manual Bar Chart with JavaScript with SQLite</h2>
+    <canvas id="barCanvas" width="500" height="500" style="border:1px solid #000;"></canvas>
+
+    <script>
+    const canvas = document.getElementById("barCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Define an array of colors (repeat if more bars than colors)
+    const colors = [
+        "#4e79a7", // blue
+        "#f28e2b", // orange
+        "#e15759", // red
+        "#76b7b2", // teal
+        "#59a14f", // green
+        "#edc949", // yellow
+        "#af7aa1", // purple
+        "#ff9da7", // pink
+        "#9c755f", // brown
+        "#bab0ab"  // gray
+    ];
+
+    function drawBars(data) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const margin = 40;
+        const barWidth = 40;
+        const spacing = 30;
+        const maxBarHeight = canvas.height - margin * 2;
+
+        const maxVal = Math.max(...data.map(d => d.value));
+
+        data.forEach((item, i) => {
+            const barHeight = (item.value / maxVal) * maxBarHeight;
+            const x = margin + i * (barWidth + spacing);
+            const y = canvas.height - margin - barHeight;
+
+            // Use a color cycling through the colors array
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.fillRect(x, y, barWidth, barHeight);
+
+            ctx.fillStyle = "black";
+            ctx.fillText(item.label, x + 10, canvas.height - margin + 15);
+            ctx.fillText(item.value, x + 10, y - 5);
+        });
+    }
+
+    function fetchData() {
+        fetch("/api/data")
+            .then(res => res.json())
+            .then(data => drawBars(data));
+    }
+
+    fetchData();
+    setInterval(fetchData, 5000);
+
+	</script>
+</body>
+</html>

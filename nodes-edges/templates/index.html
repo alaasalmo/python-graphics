@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graph Visualization</title>
+    <style> canvas { border: 1px solid black; } </style>
+</head>
+<body>
+    <h2>Nodes and Edges</h2>
+    <canvas id="mapCanvas" width="600" height="300"></canvas>
+
+    <script>
+    const canvas = document.getElementById("mapCanvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    img.src = 'static/pp.jpg';
+
+    img.onload = () => {
+        fetchAndDraw();
+        setInterval(fetchAndDraw, 3000);
+    };
+
+    function fetchAndDraw() {
+        fetch('/api/data')
+            .then(res => res.json())
+            .then(data => {
+                drawGraph(data.nodes, data.edges);
+            });
+    }
+
+    function drawGraph(nodes, edges) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const nodeMap = {};
+        nodes.forEach(n => nodeMap[n.id] = n);
+
+        // Draw edges first
+        edges.forEach(edge => {
+            const from = nodeMap[edge.from];
+            const to = nodeMap[edge.to];
+            if (from && to) {
+                ctx.beginPath();
+                ctx.moveTo(from.x, from.y);
+                ctx.lineTo(to.x, to.y);
+                ctx.strokeStyle = "#000";  // black edges
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        });
+
+        // Draw nodes
+        nodes.forEach(node => {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = node.color || "red";
+            ctx.fill();
+            ctx.strokeStyle = "#000";
+            ctx.stroke();
+        });
+    }
+    </script>
+</body>
+</html>
